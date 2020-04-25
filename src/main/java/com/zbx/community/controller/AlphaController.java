@@ -1,5 +1,6 @@
 package com.zbx.community.controller;
 
+import com.zbx.community.util.CommunityUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
@@ -99,6 +101,20 @@ public class AlphaController {
         list.add(emp);
 
         return list;
+    }
+
+    @RequestMapping(path = "/cookie/set", method = RequestMethod.GET)
+    @ResponseBody
+    public String setCookie(HttpServletResponse response) {
+        //create cookie
+        Cookie cookie = new Cookie("code", CommunityUtil.generateUUID());
+        // 设置生效范围
+        cookie.setPath("/community/alpha");
+        // 设置Cookie生存时间
+        cookie.setMaxAge(60 * 10);
+        // sent cookie
+        response.addCookie(cookie);
+        return "success";
     }
 
 
