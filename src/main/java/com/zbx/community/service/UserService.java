@@ -162,6 +162,7 @@ public class UserService implements CommunityConstant {
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+
         loginTicketMapper.insertLoginTicket(loginTicket);
 
         map.put("ticket", loginTicket.getTicket());
@@ -172,4 +173,44 @@ public class UserService implements CommunityConstant {
     public void logout(String ticket) {
         loginTicketMapper.updateStatus(ticket, 1);
     }
+
+    public LoginTicket findLoginTicket(String ticket) {
+        return loginTicketMapper.selectByTicket(ticket);
+    }
+
+    public int updateHeader(int userId, String headerUrl) {
+        return userMapper.updateHeader(userId, headerUrl);
+    }
+
+    public Map<String, Object> updatePassword(User user, String newPassword, String oldPassword) {
+        Map<String, Object> map = new HashMap<>();
+        if (StringUtils.isBlank(newPassword)) {
+            map.put("newPasswordMsg", "参数不能为空！");
+            return map;
+        }
+
+        if (StringUtils.isBlank(oldPassword)) {
+            map.put("oldPasswordMsg", "参数不能为空！");
+            return map;
+        }
+
+
+        oldPassword = CommunityUtil.md5(oldPassword + user.getSalt());
+        newPassword = CommunityUtil.md5(newPassword + user.getSalt());
+
+        if (!oldPassword.equals(user.getPassword())) {
+            map.put("oldPasswordMsg", "原密码错误！");
+            return map;
+        }
+
+        if (oldPassword.equals(newPassword)) {
+            map.put("newPasswordMsg", "新密码与旧密码一致！");
+            return map;
+        }
+
+        userMapper.updatePassword(user.getId(), newPassword);
+
+        return null;
+    }
+
 }
